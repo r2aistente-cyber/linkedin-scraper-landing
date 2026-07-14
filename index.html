@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Profile Scraper — Chrome Extension</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0f;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 80px 0 60px;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: #1a3a5c;
+            color: #64b5f6;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .hero h1 {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #64b5f6, #0a66c2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero p {
+            font-size: 18px;
+            color: #888;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+        .hero .price {
+            font-size: 36px;
+            font-weight: 800;
+            color: #64b5f6;
+        }
+        .hero .price span {
+            font-size: 16px;
+            color: #666;
+            font-weight: 400;
+        }
+        .btn {
+            display: inline-block;
+            background: #0a66c2;
+            color: #fff;
+            padding: 14px 36px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: background 0.2s;
+            margin-top: 24px;
+        }
+        .btn:hover { background: #0a7ae0; }
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid #333;
+            color: #aaa;
+            margin-left: 12px;
+        }
+        .btn-secondary:hover { border-color: #666; color: #fff; }
+
+        /* Features */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 60px 0;
+        }
+        .feature {
+            background: #111;
+            border: 1px solid #1a1a1a;
+            border-radius: 12px;
+            padding: 24px;
+        }
+        .feature .icon { font-size: 28px; margin-bottom: 12px; }
+        .feature h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+        .feature p { font-size: 13px; color: #888; }
+
+        /* Tech */
+        .tech { text-align: center; margin: 60px 0; }
+        .tech h2 { font-size: 20px; font-weight: 600; margin-bottom: 20px; }
+        .tech-tags {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .tech-tags span {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        /* Fields */
+        .fields {
+            margin: 60px 0;
+        }
+        .fields h2 { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
+        .fields-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px;
+        }
+        .fields-grid div {
+            background: #111;
+            border: 1px solid #1a1a1a;
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #ccc;
+        }
+
+        /* Includes */
+        .includes { margin: 60px 0; }
+        .includes h2 { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
+        .includes ul {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 8px;
+            list-style: none;
+        }
+        .includes ul li {
+            padding: 10px 14px;
+            background: #111;
+            border: 1px solid #1a1a1a;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #aaa;
+        }
+        .includes ul li::before {
+            content: "✅ ";
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            border-top: 1px solid #1a1a1a;
+            color: #555;
+            font-size: 13px;
+        }
+        .footer a { color: #888; text-decoration: none; }
+
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 28px; }
+            .hero .price { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero -->
+        <div class="hero">
+            <div class="hero-badge">Chrome Extension</div>
+            <h1>LinkedIn Profile Scraper</h1>
+            <p>Extract LinkedIn profiles from search results and individual pages. One-click export to CSV and Excel.</p>
+            <div class="price">$249 <span>one-time · source code included</span></div>
+            <div>
+                <a href="#" class="btn" onclick="alert('Available on Sideprojectors. Contact: xavier2236@gmail.com')">Buy on Sideprojectors →</a>
+                <a href="https://github.com/r2aistente-cyber/Proyecto-Empresa/blob/main/build-to-flip/LINKEDIN_SCRAPER_SPEC.md" class="btn btn-secondary">View Spec</a>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="features">
+            <div class="feature">
+                <div class="icon">🔍</div>
+                <h3>Search Results</h3>
+                <p>Extract all profiles from any LinkedIn search page. Auto-scroll loads more results.</p>
+            </div>
+            <div class="feature">
+                <div class="icon">👤</div>
+                <h3>Individual Profiles</h3>
+                <p>Extract 15+ fields from any profile: name, headline, experience, skills, education, and more.</p>
+            </div>
+            <div class="feature">
+                <div class="icon">📊</div>
+                <h3>CSV & Excel Export</h3>
+                <p>Download results as CSV or Excel file. Compatible with Google Sheets and Excel.</p>
+            </div>
+            <div class="feature">
+                <div class="icon">📋</div>
+                <h3>Batch Mode</h3>
+                <p>Paste a list of profile URLs and extract them all at once with real-time progress.</p>
+            </div>
+            <div class="feature">
+                <div class="icon">🛡️</div>
+                <h3>Safe & Stealth</h3>
+                <p>Respects rate limits. Reads DOM only — no clicks, no automation flags.</p>
+            </div>
+            <div class="feature">
+                <div class="icon">🔌</div>
+                <h3>No API Keys</h3>
+                <p>Works with your LinkedIn session. No external services, no monthly fees.</p>
+            </div>
+        </div>
+
+        <!-- Fields -->
+        <div class="fields">
+            <h2>📋 Extracted Fields</h2>
+            <div class="fields-grid">
+                <div>Full Name</div>
+                <div>Headline</div>
+                <div>Current Company</div>
+                <div>Current Position</div>
+                <div>Location</div>
+                <div>About / Summary</div>
+                <div>Experience (all)</div>
+                <div>Education</div>
+                <div>Skills</div>
+                <div>Languages</div>
+                <div>Certifications</div>
+                <div>LinkedIn URL</div>
+                <div>Profile Picture URL</div>
+                <div>Connections Count</div>
+                <div>Profile Age</div>
+            </div>
+        </div>
+
+        <!-- Includes -->
+        <div class="includes">
+            <h2>📦 What You Get</h2>
+            <ul>
+                <li>Full source code (Manifest V3)</li>
+                <li>Ready-to-install Chrome package (.zip)</li>
+                <li>Installation guide (PDF)</li>
+                <li>Customization guide for developers</li>
+                <li>Icons and assets</li>
+                <li>CSV export module</li>
+                <li>Excel export module</li>
+                <li>JSON export module</li>
+            </ul>
+        </div>
+
+        <!-- Tech -->
+        <div class="tech">
+            <h2>⚙️ Built With</h2>
+            <div class="tech-tags">
+                <span>Chrome Extension MV3</span>
+                <span>Vanilla JavaScript</span>
+                <span>HTML/CSS</span>
+                <span>FileSaver.js</span>
+                <span>CSV Generator</span>
+                <span>XLSX Export</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>LinkedIn Profile Scraper — Source code included · $249 one-time</p>
+            <p><a href="mailto:xavier2236@gmail.com">xavier2236@gmail.com</a></p>
+        </div>
+    </div>
+</body>
+</html>
