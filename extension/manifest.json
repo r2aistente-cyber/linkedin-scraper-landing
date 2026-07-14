@@ -3,8 +3,14 @@
   "name": "LinkedIn Profile Scraper",
   "version": "1.0.0",
   "description": "Extract LinkedIn profiles to CSV, Excel and JSON with one click.",
-  "permissions": ["tabs", "storage", "scripting"],
-  "host_permissions": ["https://www.linkedin.com/*"],
+  "permissions": [
+    "tabs",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://www.linkedin.com/*"
+  ],
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
@@ -21,8 +27,12 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://www.linkedin.com/*"],
-      "js": ["content.js"],
+      "matches": [
+        "https://www.linkedin.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
       "run_at": "document_idle"
     }
   ],
