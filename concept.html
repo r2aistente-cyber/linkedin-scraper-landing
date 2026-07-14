@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinkedIn Scraper — Mockup</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  .popup {
+    width: 380px;
+    background: #0f0f1a;
+    border-radius: 16px;
+    border: 1px solid #2a2a45;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .header {
+    background: #0a66c2;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header h1 { font-size: 14px; font-weight: 600; color: #fff; }
+  .header span { font-size: 18px; }
+
+  .content { padding: 14px 16px; }
+
+  .section { margin-bottom: 14px; }
+  .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #666;
+    margin-bottom: 8px;
+  }
+  .detected {
+    background: #16213e;
+    border: 1px solid #1e2a45;
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .detected .count { font-size: 24px; font-weight: 700; color: #fff; }
+  .detected .label { font-size: 12px; color: #888; }
+  .detected .btn {
+    background: #0a66c2;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .last-extract {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #888;
+    margin-top: 8px;
+  }
+
+  .export-buttons {
+    display: flex;
+    gap: 6px;
+    margin: 10px 0;
+  }
+  .export-btn {
+    flex: 1;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #2a2a45;
+    background: transparent;
+    color: #aaa;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+  }
+  .export-btn:hover { background: #1e2a45; color: #fff; }
+
+  .options { margin: 10px 0; }
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    font-size: 12px;
+    color: #aaa;
+  }
+  .option input[type="checkbox"] {
+    width: 14px; height: 14px;
+    accent-color: #0a66c2;
+  }
+
+  .batch { margin: 10px 0; }
+  .batch textarea {
+    width: 100%;
+    height: 60px;
+    background: #16213e;
+    border: 1px solid #1e2a45;
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: #ccc;
+    font-size: 11px;
+    font-family: monospace;
+    resize: none;
+    outline: none;
+  }
+  .batch textarea::placeholder { color: #555; }
+  .batch .btn-extract {
+    background: #0a66c2;
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 6px;
+  }
+
+  .footer {
+    border-top: 1px solid #1e2a45;
+    padding: 10px 16px;
+    font-size: 11px;
+    color: #555;
+    display: flex;
+    justify-content: space-between;
+  }
+  .footer .total { color: #0a66c2; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="popup">
+  <div class="header">
+    <span>🔗</span>
+    <h1>LinkedIn Profile Scraper</h1>
+  </div>
+  <div class="content">
+    <!-- Detected -->
+    <div class="section">
+      <div class="section-label">Current page</div>
+      <div class="detected">
+        <div>
+          <div class="count">12</div>
+          <div class="label">profiles detected</div>
+        </div>
+        <button class="btn">📥 Extract all</button>
+      </div>
+      <div class="last-extract">
+        <span>Last extraction: 15 profiles · Today 14:30</span>
+        <span>📦 Total: 47 profiles</span>
+      </div>
+    </div>
+
+    <!-- Export -->
+    <div class="export-buttons">
+      <div class="export-btn">📊 CSV</div>
+      <div class="export-btn">📗 Excel</div>
+      <div class="export-btn">📋 JSON</div>
+    </div>
+
+    <!-- Options -->
+    <div class="options">
+      <div class="option">
+        <input type="checkbox" checked> <span>Auto-scroll for more results</span>
+      </div>
+      <div class="option">
+        <input type="checkbox" checked> <span>Include profile URL</span>
+      </div>
+    </div>
+
+    <!-- Batch -->
+    <div class="batch">
+      <div class="section-label">Batch mode — paste URLs</div>
+      <textarea placeholder="https://linkedin.com/in/juan-perez&#10;https://linkedin.com/in/maria-garcia&#10;https://linkedin.com/in/carlos-lopez"></textarea>
+      <button class="btn-extract">▶ Extract all (3)</button>
+    </div>
+  </div>
+  <div class="footer">
+    <span>v1.0 · Source code included</span>
+    <span><span class="total">$249</span> one-time</span>
+  </div>
+</div>
+</body>
+</html>
