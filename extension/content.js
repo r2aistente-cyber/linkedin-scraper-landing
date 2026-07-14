@@ -1,121 +1,229 @@
 // content.js — inyectado en linkedin.com, extrae datos del DOM
+// Selectores tolerantes para múltiples versiones del layout de LinkedIn
 
-function extractSearchResults() {
-  const cards = document.querySelectorAll('.entity-result');
-  if (!cards.length) {
-    // Fallback selector para variantes de LinkedIn
-    const alt = document.querySelectorAll('[data-view-name="search-entity-result-universal-template"]');
-    return extractFromCards(alt.length ? alt : cards);
+/* ─── HELPER: obtiene texto de un elemento con fallbacks ─── */
+function getText(el, ...selectors) {
+  for (const sel of selectors) {
+    const found = typeof sel === 'string' ? el.querySelector(sel) : sel;
+    if (found?.innerText?.trim()) return found.innerText.trim();
   }
+  return '';
+}
+
+function getHref(el, ...selectors) {
+  for (const sel of selectors) {
+    const found = typeof sel === 'string' ? el.querySelector(sel) : sel;
+    if (found?.href) return found.href;
+  }
+  return '';
+}
+
+function getSrc(el, ...selectors) {
+  for (const sel of selectors) {
+    const found = typeof sel === 'string' ? el.querySelector(sel) : sel;
+    if (found?.src) return found.src;
+  }
+  return '';
+}
+
+/* ─── EXTRAER RESULTADOS DE BÚSQUEDA ─── */
+function extractSearchResults() {
+  // Intentar múltiples selectores para tarjetas de perfil
+  const cardSelectors = [
+    '.entity-result',
+    '[data-view-name="search-entity-result-universal-template"]',
+    '.search-entity-result',
+    'li[data-urn*="urn:li:member"]',
+    '.reusable-search__entity-result',
+    'article[data-view-name="search-entity-result"]',
+    'li.reusable-search__result-section > ul > li',
+  ];
+
+  let cards = [];
+  for (const sel of cardSelectors) {
+    cards = document.querySelectorAll(sel);
+    if (cards.length > 0) break;
+  }
+
+  // Fallback extremo: buscar cualquier enlace que contenga /in/ en href
+  if (cards.length === 0) {
+    const links = document.querySelectorAll('a[href*="/in/"]');
+    const parentCandidates = new Set();
+    links.forEach(a => {
+      let p = a.parentElement;
+      let depth = 0;
+      while (p && depth < 5) {
+        if (p.children.length > 2 && p.children.length < 20) {
+          parentCandidates.add(p);
+          break;
+        }
+        p = p.parentElement;
+        depth++;
+      }
+    });
+    cards = Array.from(parentCandidates).slice(0, 20);
+  }
+
   return extractFromCards(cards);
 }
 
 function extractFromCards(cards) {
   return Array.from(cards).map(card => {
-    const titleEl = card.querySelector('.entity-result__title-text a');
-    const headlineEl = card.querySelector('.entity-result__summary--2-lines') ||
-                       card.querySelector('.entity-result__summary');
-    const subtitleEl = card.querySelector('.entity-result__subtitle');
-    const locationEl = card.querySelector('.entity-result__secondary-subtitle') ||
-                       card.querySelector('.entity-result__metadata-item');
-    const imgEl = card.querySelector('img');
+    // Name: buscar enlaces que contengan /in/
+    const nameLink = card.querySelector('a[href*="/in/"]');
+    const name = nameLink
+      ? (nameLink.innerText?.trim() || nameLink.querySelector('span')?.innerText?.trim() || '')
+      : getText(card,
+          '.entity-result__title-text a',
+          '.actor-name',
+          'span[aria-hidden="true"]',
+          '.title'
+        );
+
+    // Headline: texto debajo del nombre
+    const headline = getText(card,
+      '.entity-result__summary',
+      '.entity-result__summary--2-lines',
+      '.subline',
+      '.subtitle',
+      '.entity-result__title-text + *'
+    );
+
+    // Company / subtitle
+    const company = getText(card,
+      '.entity-result__subtitle',
+      '.entity-result__primary-subtitle',
+      '.secondary-subtitle'
+    );
+
+    // Location
+    const location = getText(card,
+      '.entity-result__secondary-subtitle',
+      '.entity-result__metadata-item',
+      '.metadata',
+      '.entity-result__metadata'
+    );
+
+    // Profile picture
+    const img = card.querySelector('img');
+    const picture = img?.src?.startsWith('data:') ? '' : (img?.src || '');
+
+    // URL from the name link
+    const url = nameLink?.href || '';
 
     return {
-      name:      titleEl?.innerText?.trim() || '',
-      headline:  headlineEl?.innerText?.trim() || '',
-      company:   subtitleEl?.innerText?.trim() || '',
-      location:  locationEl?.innerText?.trim() || '',
-      url:       titleEl?.href || '',
-      picture:   imgEl?.src || '',
+      name: name || '',
+      headline: headline || '',
+      company: company || '',
+      location: location || '',
+      url: url || '',
+      picture: picture || '',
     };
   }).filter(p => p.name);
 }
 
+/* ─── EXTRAER PERFIL INDIVIDUAL ─── */
 function extractCurrentCompany() {
+  // Buscar en la sección de experiencia
   const expSection = document.getElementById('experience');
   if (!expSection) return '';
-  const firstItem = expSection.closest('section')?.querySelector('.pvs-list__item--line-separated');
-  if (!firstItem) return '';
-  const spans = firstItem.querySelectorAll('span[aria-hidden="true"]');
-  return spans[1]?.innerText?.trim() || '';
+
+  // Buscar spans no vacíos con aria-hidden dentro del primer item
+  const section = expSection.closest('section') || expSection.parentElement;
+  const items = section.querySelectorAll('[aria-hidden="true"]');
+  const texts = Array.from(items).map(el => el.innerText?.trim()).filter(Boolean);
+
+  // El segundo texto suele ser la empresa
+  return texts.length > 1 ? texts[1] : (texts[0] || '');
 }
 
 function extractCurrentPosition() {
   const expSection = document.getElementById('experience');
   if (!expSection) return '';
-  const firstItem = expSection.closest('section')?.querySelector('.pvs-list__item--line-separated');
-  if (!firstItem) return '';
-  const spans = firstItem.querySelectorAll('span[aria-hidden="true"]');
-  return spans[0]?.innerText?.trim() || '';
+  const section = expSection.closest('section') || expSection.parentElement;
+  const items = section.querySelectorAll('[aria-hidden="true"]');
+  const texts = Array.from(items).map(el => el.innerText?.trim()).filter(Boolean);
+  return texts[0] || '';
 }
 
-function extractSection(id) {
+function extractSectionText(id) {
   const anchor = document.getElementById(id);
   if (!anchor) return '';
-  const section = anchor.closest('section');
+  const section = anchor.closest('section') || anchor.parentElement;
   if (!section) return '';
-  const items = section.querySelectorAll('.pvs-list__item--line-separated span[aria-hidden="true"]');
+  const items = section.querySelectorAll('[aria-hidden="true"]');
   return Array.from(items)
-    .map(el => el.innerText.trim())
+    .map(el => el.innerText?.trim())
     .filter(Boolean)
     .join(' | ');
 }
 
-function extractLanguages() {
-  return extractSection('languages');
-}
-
-function extractConnections() {
-  const el = document.querySelector('.pvs-header__subtitle span');
-  return el?.innerText?.trim() || '';
-}
-
 function extractProfile() {
+  // Name: h1 es estable en LinkedIn
   const h1 = document.querySelector('h1');
-  const headlineEl = document.querySelector('.text-body-medium.break-words') ||
-                     document.querySelector('.text-body-medium');
-  const locationEl = document.querySelector('.text-body-small.inline.t-black--light.break-words') ||
-                     document.querySelector('.pv-text-details__left-panel .text-body-small');
-  const aboutEl = document.querySelector('#about')?.closest('section')
-                    ?.querySelector('.inline-show-more-text span[aria-hidden="true"]') ||
-                  document.querySelector('#about ~ div .inline-show-more-text');
-  const picEl = document.querySelector('img.evi-image.ember-view.profile-photo-edit__preview') ||
+  const name = h1?.innerText?.trim() || '';
+
+  // Headline
+  const headlineEl = document.querySelector('.text-body-medium') ||
+                     document.querySelector('[class*="text-body-medium"]');
+  const headline = headlineEl?.innerText?.trim() || '';
+
+  // Location
+  const locationEl = document.querySelector('.text-body-small') ||
+                     document.querySelector('[class*="text-body-small"]');
+  const location = locationEl?.innerText?.trim() || '';
+
+  // About
+  const aboutSection = document.getElementById('about');
+  let about = '';
+  if (aboutSection) {
+    const aboutText = aboutSection.closest('section')?.querySelector('[aria-hidden="true"]');
+    if (aboutText) about = aboutText.innerText.trim();
+  }
+
+  // Profile picture
+  const picEl = document.querySelector('img[class*="profile-photo"]') ||
+                document.querySelector('img[class*="evi-image"]') ||
                 document.querySelector('.pv-top-card-profile-picture__image') ||
-                document.querySelector('img.profile-photo-edit__preview');
+                document.querySelector('img[src*="profile"]');
+  const picture = picEl?.src || '';
 
   return {
-    name:           h1?.innerText?.trim() || '',
-    headline:       headlineEl?.innerText?.trim() || '',
-    company:        extractCurrentCompany(),
-    position:       extractCurrentPosition(),
-    location:       locationEl?.innerText?.trim() || '',
-    about:          aboutEl?.innerText?.trim() || '',
-    experience:     extractSection('experience'),
-    education:      extractSection('education'),
-    skills:         extractSection('skills'),
-    languages:      extractLanguages(),
-    certifications: extractSection('certifications'),
-    url:            window.location.href,
-    picture:        picEl?.src || '',
-    connections:    extractConnections(),
+    name:           name || '',
+    headline:       headline || '',
+    company:        extractCurrentCompany() || '',
+    position:       extractCurrentPosition() || '',
+    location:       location || '',
+    about:          about || '',
+    experience:     extractSectionText('experience') || '',
+    education:      extractSectionText('education') || '',
+    skills:         extractSectionText('skills') || '',
+    languages:      extractSectionText('languages') || '',
+    certifications: extractSectionText('certifications') || '',
+    url:            window.location.href || '',
+    picture:        picture || '',
+    connections:    '',
     profileAge:     '',
   };
 }
 
-function countSearchResults() {
-  const cards = document.querySelectorAll('.entity-result');
-  return cards.length;
-}
-
+/* ─── DETECCIÓN DE PÁGINA ─── */
 function isSearchPage() {
-  return window.location.href.includes('/search/results/');
+  return window.location.href.includes('/search/results/') ||
+         window.location.href.includes('/search/');
 }
 
 function isProfilePage() {
   return /linkedin\.com\/in\//.test(window.location.href);
 }
 
-async function autoScroll() {
+function countSearchResults() {
+  const cards = extractSearchResults();
+  return cards.length;
+}
+
+/* ─── AUTO-SCROLL ─── */
+function autoScroll() {
   return new Promise(resolve => {
     let lastHeight = document.body.scrollHeight;
     let attempts = 0;
@@ -133,6 +241,7 @@ async function autoScroll() {
   });
 }
 
+/* ─── LISTENER ─── */
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg.action === 'ping') {
     sendResponse({ ok: true });
@@ -156,7 +265,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
         if (msg.scroll) await autoScroll();
         sendResponse({ type: 'search', data: extractSearchResults() });
       })();
-      return true; // async
+      return true;
     } else {
       sendResponse({ type: 'none', data: [] });
     }
